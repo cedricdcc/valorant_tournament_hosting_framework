@@ -10,7 +10,12 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT users_identity_opt_in_chk CHECK (
     (riot_puuid IS NULL AND riot_game_name IS NULL AND riot_tag_line IS NULL)
-    OR privacy_opt_in = TRUE
+    OR (
+      riot_puuid IS NOT NULL
+      AND riot_game_name IS NOT NULL
+      AND riot_tag_line IS NOT NULL
+      AND privacy_opt_in = TRUE
+    )
   )
 );
 
@@ -58,8 +63,8 @@ CREATE TABLE IF NOT EXISTS matches (
   riot_match_id TEXT,
   status TEXT NOT NULL DEFAULT 'scheduled',
   winner_team_id BIGINT REFERENCES teams(id) ON DELETE SET NULL,
-  score_a INTEGER,
-  score_b INTEGER,
+  team_one_score INTEGER,
+  team_two_score INTEGER,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -87,7 +92,15 @@ CREATE TABLE IF NOT EXISTS discord_voice_jobs (
   rate_limit_reset_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  ,
+  CONSTRAINT discord_voice_jobs_context_chk CHECK (
+    tournament_id IS NOT NULL OR match_id IS NOT NULL
+  )
 );
 
 CREATE INDEX IF NOT EXISTS idx_discord_voice_jobs_status_next_attempt
   ON discord_voice_jobs (status, next_attempt_at);
+
+CREATE INDEX IF NOT EXISTS idx_discord_voice_jobs_ready
+  ON discord_voice_jobs (next_attempt_at)
+  WHERE status = 'queued' AND next_attempt_at IS NOT NULL;
