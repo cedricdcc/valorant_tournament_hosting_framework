@@ -39,11 +39,13 @@ Required credentials are documented in `docs/credentials.md`.
 
 Core processes are dockerised in `docker-compose.yml`:
 
-- `frontend` (HTTPS-facing web entrypoint placeholder via NGINX)
+- `frontend` (web entrypoint placeholder via NGINX; HTTP by default in compose)
 - `api` (NestJS backend scaffold container)
 - `discord-bot` (Sapphire/discord.js worker scaffold container)
 - `postgres` (database with auto schema bootstrap from `infra/postgres/schema.sql`)
 - `redis` (broker/cache backend for queueing)
+
+Before startup, copy `.env.example` to `.env` and set real credentials/secrets.
 
 Start the stack:
 
