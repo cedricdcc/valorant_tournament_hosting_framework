@@ -79,3 +79,5 @@ The initial PostgreSQL schema includes:
 - `discord_voice_jobs`
 
 See `infra/postgres/schema.sql`.
+
+Migration scripts are available under `infra/postgres/migrations/`.
