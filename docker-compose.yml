@@ -1,0 +1,71 @@
+services:
+  frontend:
+    image: nginx:1.27-alpine
+    container_name: valorant_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    image: node:20-alpine
+    container_name: valorant_api
+    working_dir: /app
+    command: >-
+      sh -c "echo 'NestJS API container scaffold is running. Replace command with app start when code is added.'
+      && tail -f /dev/null"
+    env_file:
+      - .env.example
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/valorant_tournament
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./:/app:rw
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  discord-bot:
+    image: node:20-alpine
+    container_name: valorant_discord_bot
+    working_dir: /app
+    command: >-
+      sh -c "echo 'Sapphire/discord.js bot container scaffold is running. Replace command with bot start when code is added.'
+      && tail -f /dev/null"
+    env_file:
+      - .env.example
+    environment:
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./:/app:rw
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: valorant_redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: valorant_postgres
+    environment:
+      POSTGRES_DB: valorant_tournament
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

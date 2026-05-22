@@ -35,6 +35,34 @@ Event-driven platform specification for orchestrating Valorant tournaments and D
 
 Required credentials are documented in `docs/credentials.md`.
 
+## Docker Deployment
+
+Core processes are dockerised in `docker-compose.yml`:
+
+- `frontend` (HTTPS-facing web entrypoint placeholder via NGINX)
+- `api` (NestJS backend scaffold container)
+- `discord-bot` (Sapphire/discord.js worker scaffold container)
+- `postgres` (database with auto schema bootstrap from `infra/postgres/schema.sql`)
+- `redis` (broker/cache backend for queueing)
+
+Start the stack:
+
+```bash
+docker compose up -d
+```
+
+Stop and remove containers/network:
+
+```bash
+./scripts/docker-clean.sh
+```
+
+Stop and remove containers/network/volumes/local images:
+
+```bash
+./scripts/docker-clean-all.sh
+```
+
 ## Initial Database Model
 
 The initial PostgreSQL schema includes:
