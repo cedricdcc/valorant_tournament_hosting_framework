@@ -21,7 +21,8 @@ services:
       RIOT_RSO_CLIENT_SECRET: ${RIOT_RSO_CLIENT_SECRET:-}
       DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
       DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
-      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:changeme@postgres:5432/valorant_tournament}
+      # Set DATABASE_URL in .env (see .env.example). No weak in-file password default is used here.
+      DATABASE_URL: ${DATABASE_URL:-}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:3000}
       ENFORCE_HTTPS: ${ENFORCE_HTTPS:-false}
