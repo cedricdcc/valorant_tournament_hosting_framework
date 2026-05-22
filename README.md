@@ -37,7 +37,7 @@ Required credentials are documented in `docs/credentials.md`.
 
 ## Docker Deployment
 
-Core processes are dockerised in `docker-compose.yml`:
+Core processes are dockerized in `docker-compose.yml`:
 
 - `frontend` (web entrypoint placeholder via NGINX; HTTP by default in compose)
 - `api` (NestJS backend scaffold container)
