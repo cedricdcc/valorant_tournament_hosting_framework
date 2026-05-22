@@ -65,6 +65,15 @@ Stop and remove containers/network/volumes/local images:
 ./scripts/docker-clean-all.sh
 ```
 
+## API Auth Endpoints (NestJS)
+
+The API scaffold now includes OAuth2 endpoints for dual-identity linking:
+
+- `GET /auth/discord/authorize?privacyOptIn=true`
+- `GET /auth/discord/callback` (captures Discord Snowflake identity)
+- `GET /auth/riot/authorize?linkToken=...`
+- `GET /auth/riot/callback` (exchanges Riot auth code, calls `/riot/account/v1/accounts/me`, and upserts `users`)
+
 ## Initial Database Model
 
 The initial PostgreSQL schema includes:
