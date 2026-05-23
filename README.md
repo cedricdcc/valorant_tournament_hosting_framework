@@ -21,6 +21,7 @@ Event-driven platform specification for orchestrating Valorant tournaments and D
    - Strategy-based format resolution (Swiss / elimination).
    - Captains create custom lobby manually with tournament settings.
    - Backend verifies post-match outcomes through VAL-MATCH-V1 using registered player `puuid` values.
+   - Verification poller reads `/val/match/v1/matchlists/by-puuid/{puuid}`, resolves match payloads from `/val/match/v1/matches/{matchId}`, validates tournament mode, and auto-advances the winner.
 
 3. **Discord warm lobby orchestration**
    - Players gather in a public warm lobby channel.
