@@ -49,7 +49,7 @@ class RiotMatchClientMock implements RiotMatchClient {
     return this.matchlistsByPuuid[puuid] ?? [];
   }
 
-  async getMatch(matchId: string) {
+  async getMatch(matchId: string): Promise<RiotMatch> {
     const match = this.matchesById[matchId];
     if (!match) {
       throw new Error(`Unknown matchId ${matchId}`);

@@ -1,5 +1,7 @@
 import type { RiotMatch } from './riot-match.types.js';
 
+const TOURNAMENT_MODE_VALUE = 'tournament';
+
 export interface RegisteredTournamentPlayer {
   puuid: string;
   teamId: string;
@@ -19,7 +21,7 @@ function isTournamentModeEnabled(match: RiotMatch): boolean {
     return true;
   }
 
-  if (typeof match.tournamentMode === 'string' && match.tournamentMode.toLowerCase() === 'tournament') {
+  if (typeof match.tournamentMode === 'string' && match.tournamentMode.toLowerCase() === TOURNAMENT_MODE_VALUE) {
     return true;
   }
 
