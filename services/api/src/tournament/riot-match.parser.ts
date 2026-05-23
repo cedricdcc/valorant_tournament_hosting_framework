@@ -30,8 +30,8 @@ function isTournamentModeEnabled(match: RiotMatch): boolean {
   return Boolean(match.matchInfo?.tournamentId);
 }
 
-function normalizeRoundsWon(roundsWon: number | undefined): number {
-  return Number.isFinite(roundsWon) ? (roundsWon as number) : 0;
+function normalizeRoundsWon(roundsWon: number | null | undefined): number {
+  return typeof roundsWon === 'number' && Number.isFinite(roundsWon) ? roundsWon : 0;
 }
 
 function getMappedTeamId(

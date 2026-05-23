@@ -17,7 +17,7 @@ export interface RiotMatchInfo {
 export interface RiotMatchTeam {
   teamId?: string;
   won?: boolean;
-  roundsWon?: number;
+  roundsWon?: number | null;
 }
 
 export interface RiotMatchPlayer {

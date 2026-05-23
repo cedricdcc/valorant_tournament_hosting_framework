@@ -7,6 +7,7 @@ import {
   type RiotMatchClient,
   type TournamentAdvancementEngine,
 } from '../src/tournament/match-verification.service.js';
+import type { RiotMatch } from '../src/tournament/riot-match.types.js';
 
 class MatchVerificationRepositoryMock implements MatchVerificationRepository {
   constructor(public pendingMatches: PendingTournamentMatch[]) {}
@@ -41,7 +42,7 @@ class MatchVerificationRepositoryMock implements MatchVerificationRepository {
 class RiotMatchClientMock implements RiotMatchClient {
   constructor(
     private readonly matchlistsByPuuid: Record<string, string[]>,
-    private readonly matchesById: Record<string, RiotMatchClient['getMatch'] extends (matchId: string) => Promise<infer M> ? M : never>,
+    private readonly matchesById: Record<string, RiotMatch>,
   ) {}
 
   async getMatchlistByPuuid(puuid: string): Promise<string[]> {
