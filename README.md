@@ -27,6 +27,7 @@ Event-driven platform specification for orchestrating Valorant tournaments and D
    - Players gather in a public warm lobby channel.
    - Once 10 ready players are present, move operations are queued.
    - BullMQ worker drains moves with token-bucket style pacing and exponential backoff on 429 responses.
+   - The bot must be invited with **Manage Channels** and **Move Members** so it can create per-match voice channels, execute 10 discrete member move requests, then return connected players to the warm lobby during cleanup.
 
 ## Security & Compliance Requirements
 
@@ -53,6 +54,9 @@ The Discord bot source scaffold lives in `services/discord-bot` and includes:
 - `TournamentBotClient` extension that auto-registers `commands`, `preconditions`, and `listeners` directories at runtime.
 - Redis broker subscription (`DISCORD_BROKER_CHANNEL`, default `discord.jobs`) forwarding messages to Sapphire listeners.
 - Discord API request helper that always sets `Authorization: Bot <token>` from `DISCORD_BOT_TOKEN` and a valid `User-Agent`.
+- Warm-lobby voice orchestration broker messages:
+  - `{"type":"queue-match-voice","guildId":"...","matchId":"...","warmLobbyChannelId":"...","categoryId":"...","teams":[{"teamId":"...","channelName":"...","userIds":["..."]},{"teamId":"...","channelName":"...","userIds":["..."]}]}`
+  - `{"type":"cleanup-match-voice","guildId":"...","matchId":"..."}`
 
 Start the stack:
 
