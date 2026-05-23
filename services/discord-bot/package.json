@@ -1,0 +1,21 @@
+{
+  "name": "valorant-discord-bot",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "node --import tsx src/index.ts",
+    "test": "node --test --import tsx"
+  },
+  "dependencies": {
+    "@sapphire/framework": "^5.5.0",
+    "@sapphire/pieces": "^4.4.1",
+    "discord.js": "^14.26.4",
+    "redis": "^5.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
+}

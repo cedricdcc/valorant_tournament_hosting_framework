@@ -48,6 +48,12 @@ Core processes are dockerized in `docker-compose.yml`:
 
 Before startup, copy `.env.example` to `.env` and set real credentials/secrets.
 
+The Discord bot source scaffold lives in `services/discord-bot` and includes:
+
+- `TournamentBotClient` extension that auto-registers `commands`, `preconditions`, and `listeners` directories at runtime.
+- Redis broker subscription (`DISCORD_BROKER_CHANNEL`, default `discord.jobs`) forwarding messages to Sapphire listeners.
+- Discord API request helper that always sets `Authorization: Bot <token>` from `DISCORD_BOT_TOKEN` and a valid `User-Agent`.
+
 Start the stack:
 
 ```bash

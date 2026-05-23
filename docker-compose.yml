@@ -40,7 +40,9 @@ services:
       && tail -f /dev/null"
     environment:
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      DISCORD_USER_AGENT: ${DISCORD_USER_AGENT:-valorant_tournament_hosting_framework-discord-bot/0.1.0}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      DISCORD_BROKER_CHANNEL: ${DISCORD_BROKER_CHANNEL:-discord.jobs}
     depends_on:
       - redis
     restart: unless-stopped
