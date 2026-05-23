@@ -13,6 +13,8 @@ import {
 } from '../discord/discord-orchestration.constants.js';
 import { DiscordOrchestrationProcessor } from '../discord/discord-orchestration.processor.js';
 import { DiscordOrchestrationService } from '../discord/discord-orchestration.service.js';
+import { LegalController } from '../legal/legal.controller.js';
+import { LegalService } from '../legal/legal.service.js';
 
 function getNumberFromEnv(value: string | undefined, fallback: number): number {
   const parsed = Number.parseInt(value ?? '', 10);
@@ -56,7 +58,7 @@ class NoopDiscordGatewayClient implements DiscordGatewayClient {
 
 @Module({
   imports: [BullModule.forRoot(createBullRootOptions()), BullModule.registerQueue(createDiscordQueueOptions())],
-  controllers: [AuthController],
+  controllers: [AuthController, LegalController],
   providers: [
     {
       provide: DISCORD_GATEWAY_CLIENT,
@@ -78,6 +80,7 @@ class NoopDiscordGatewayClient implements DiscordGatewayClient {
       useFactory: (usersRepository: UsersRepository) => new AuthService(usersRepository),
       inject: [UsersRepository],
     },
+    LegalService,
   ],
   exports: [DiscordOrchestrationService],
 })
