@@ -65,4 +65,12 @@ export class AuthController {
       .type('text/html')
       .send(this.authService.getDiscordBotOnboardingHtml());
   }
+
+  @Get('register')
+  registrationUi(@Res() res: Response): void {
+    res
+      .status(200)
+      .type('text/html')
+      .send(this.authService.getRegistrationHtml());
+  }
 }
