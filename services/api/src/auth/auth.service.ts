@@ -67,6 +67,32 @@ export interface LinkedIdentityResult {
   user: UserRecord;
 }
 
+const DISCORD_BOT_OAUTH_SCOPES = ['bot', 'applications.commands'] as const;
+const DISCORD_MANAGE_CHANNELS_PERMISSION = 16n;
+const DISCORD_MOVE_MEMBERS_PERMISSION = 16777216n;
+const DISCORD_BOT_PERMISSION_INTEGER = (DISCORD_MANAGE_CHANNELS_PERMISSION | DISCORD_MOVE_MEMBERS_PERMISSION).toString();
+
+export interface DiscordBotOnboardingStep {
+  title: string;
+  instruction: string;
+}
+
+export interface DiscordBotOnboardingPayload {
+  inviteUrl: string;
+  requiredScopes: readonly string[];
+  requiredPermissionInteger: string;
+  steps: readonly DiscordBotOnboardingStep[];
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 @Injectable()
 export class AuthService {
   private readonly config: AuthConfig;
@@ -104,6 +130,61 @@ export class AuthService {
     });
 
     return `${this.config.discordAuthorizeEndpoint}?${params.toString()}`;
+  }
+
+  buildDiscordBotInviteUrl(): string {
+    const params = new URLSearchParams({
+      client_id: this.config.discordClientId,
+      scope: DISCORD_BOT_OAUTH_SCOPES.join(' '),
+      permissions: DISCORD_BOT_PERMISSION_INTEGER,
+    });
+
+    return `${this.config.discordAuthorizeEndpoint}?${params.toString()}`;
+  }
+
+  getDiscordBotOnboarding(): DiscordBotOnboardingPayload {
+    return {
+      inviteUrl: this.buildDiscordBotInviteUrl(),
+      requiredScopes: DISCORD_BOT_OAUTH_SCOPES,
+      requiredPermissionInteger: DISCORD_BOT_PERMISSION_INTEGER,
+      steps: [
+        {
+          title: 'Step 1: Invite the Bot',
+          instruction:
+            "Click here to authorize the Valorant Tournament Bot for your server. You must have the 'Manage Server' or 'Administrator' permission in Discord to do this.",
+        },
+        {
+          title: 'Step 2: Role Hierarchy Setup',
+          instruction:
+            "Crucial Setup Step: Open your Discord Server Settings -> Roles. You must drag the new 'Tournament Bot' role high up in your role list. It must be placed above any user roles it needs to manage, otherwise, Discord's hierarchy rules will block the bot from moving players or creating channels.",
+        },
+        {
+          title: "Step 3: 'Warm Lobby' Configuration",
+          instruction:
+            "The bot cannot force offline players into a voice channel. Please designate or create a public voice channel to act as the 'Warm Lobby'. Players must connect here before their match so the bot can automatically move them to their isolated team channels.",
+        },
+      ],
+    };
+  }
+
+  getDiscordBotOnboardingHtml(): string {
+    const onboarding = this.getDiscordBotOnboarding();
+    const stepsHtml = onboarding.steps
+      .map(
+        (step) =>
+          `<li><strong>${escapeHtml(step.title)}</strong><p>${escapeHtml(step.instruction)}</p></li>`,
+      )
+      .join('');
+
+    return `<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Discord Bot Onboarding</title></head>
+<body>
+  <h1>Valorant Tournament Bot Server Onboarding</h1>
+  <p><a href="${escapeHtml(onboarding.inviteUrl)}">Click here to authorize the Valorant Tournament Bot for your server.</a></p>
+  <ol>${stepsHtml}</ol>
+</body>
+</html>`;
   }
 
   async exchangeDiscordCode(code: string, state: string): Promise<string> {

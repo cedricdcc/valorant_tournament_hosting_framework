@@ -82,6 +82,8 @@ The API scaffold now includes OAuth2 endpoints for dual-identity linking:
 
 - `GET /auth/discord/authorize?privacyOptIn=true`
 - `GET /auth/discord/callback` (captures Discord Snowflake identity)
+- `GET /auth/discord/admin-onboarding` (returns Discord bot invite URL + required setup steps for server managers)
+- `GET /auth/discord/admin-onboarding/ui` (renders a dedicated onboarding wizard page for tournament managers)
 - `GET /auth/riot/authorize?linkToken=...`
 - `GET /auth/riot/callback` (exchanges Riot auth code, calls `/riot/account/v1/accounts/me`, and upserts `users`)
 

@@ -52,4 +52,17 @@ export class AuthController {
       riot: result.riotProfile,
     });
   }
+
+  @Get('discord/admin-onboarding')
+  discordAdminOnboarding() {
+    return this.authService.getDiscordBotOnboarding();
+  }
+
+  @Get('discord/admin-onboarding/ui')
+  discordAdminOnboardingUi(@Res() res: Response): void {
+    res
+      .status(200)
+      .type('text/html')
+      .send(this.authService.getDiscordBotOnboardingHtml());
+  }
 }
