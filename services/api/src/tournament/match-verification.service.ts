@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { parseTournamentMatchResult, type RegisteredTournamentPlayer } from './riot-match.parser.js';
 import type { RiotMatch } from './riot-match.types.js';
 
@@ -33,6 +33,8 @@ export interface TournamentAdvancementEngine {
 
 @Injectable()
 export class MatchVerificationService {
+  private readonly logger = new Logger(MatchVerificationService.name);
+
   constructor(
     private readonly repository: MatchVerificationRepository,
     private readonly riotMatchClient: RiotMatchClient,
@@ -81,7 +83,10 @@ export class MatchVerificationService {
         );
 
         return true;
-      } catch {
+      } catch (error) {
+        this.logger.debug(
+          `Candidate match ${candidateMatchId} did not validate for tournament match ${pendingMatch.id}: ${(error as Error).message}`,
+        );
         continue;
       }
     }

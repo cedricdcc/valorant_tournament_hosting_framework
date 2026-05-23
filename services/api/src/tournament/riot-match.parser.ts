@@ -30,7 +30,7 @@ function isTournamentModeEnabled(match: RiotMatch): boolean {
   return Boolean(match.matchInfo?.tournamentId);
 }
 
-function getRoundsWon(roundsWon: number | undefined): number {
+function normalizeRoundsWon(roundsWon: number | undefined): number {
   return Number.isFinite(roundsWon) ? (roundsWon as number) : 0;
 }
 
@@ -88,7 +88,7 @@ export function parseTournamentMatchResult(
 
   const winnerRiotTeam =
     teams.find((team) => team.won === true && team.teamId) ??
-    [...teams].sort((a, b) => getRoundsWon(b.roundsWon) - getRoundsWon(a.roundsWon))[0];
+    [...teams].sort((a, b) => normalizeRoundsWon(b.roundsWon) - normalizeRoundsWon(a.roundsWon))[0];
   if (!winnerRiotTeam?.teamId) {
     throw new Error('Unable to determine winner team from Riot match data');
   }
@@ -106,8 +106,8 @@ export function parseTournamentMatchResult(
     throw new Error('Riot team mapping resolved to the same tournament team');
   }
 
-  const winnerScore = getRoundsWon(winnerRiotTeam.roundsWon);
-  const loserScore = getRoundsWon(loserRiotTeam.roundsWon);
+  const winnerScore = normalizeRoundsWon(winnerRiotTeam.roundsWon);
+  const loserScore = normalizeRoundsWon(loserRiotTeam.roundsWon);
 
   return {
     riotMatchId,
