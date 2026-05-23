@@ -3,18 +3,23 @@ import assert from 'node:assert/strict';
 import { DiscordOrchestrationProcessor } from '../src/discord/discord-orchestration.processor.js';
 import { DISCORD_MOVE_USERS_JOB } from '../src/discord/discord-orchestration.constants.js';
 
-test('processor pauses queue and throws retryable error on Discord 429', async () => {
-  let pauseCalls = 0;
-  let resumeCalls = 0;
+class TestableProcessor extends DiscordOrchestrationProcessor {
+  public rateLimitDelays: number[] = [];
 
-  const processor = new DiscordOrchestrationProcessor({
+  protected override async applyRateLimit(retryAfterMs: number): Promise<void> {
+    this.rateLimitDelays.push(retryAfterMs);
+  }
+}
+
+test('processor triggers worker rate-limit flow on Discord 429', async () => {
+  const processor = new TestableProcessor({
     async moveUsersToVoiceChannel() {
       const error = new Error('rate limited') as Error & {
         status?: number;
         retryAfterMs?: number;
       };
       error.status = 429;
-      error.retryAfterMs = 1;
+      error.retryAfterMs = 12;
       throw error;
     },
   });
@@ -26,30 +31,14 @@ test('processor pauses queue and throws retryable error on Discord 429', async (
       targetChannelId: 'vc-1',
       userIds: ['u1'],
     },
-    queue: {
-      async pause() {
-        pauseCalls += 1;
-      },
-      async resume() {
-        resumeCalls += 1;
-      },
-    },
   };
 
-  await assert.rejects(
-    processor.process(job as never),
-    /Discord rate limit hit \(HTTP 429\); retrying with backoff after 1ms/,
-  );
-
-  await new Promise((resolve) => setTimeout(resolve, 10));
-  assert.equal(pauseCalls, 1);
-  assert.equal(resumeCalls, 1);
+  await assert.rejects(processor.process(job as never));
+  assert.deepEqual(processor.rateLimitDelays, [12]);
 });
 
-test('processor rethrows non-429 errors without pausing queue', async () => {
-  let pauseCalls = 0;
-
-  const processor = new DiscordOrchestrationProcessor({
+test('processor rethrows non-429 errors without rate-limiting', async () => {
+  const processor = new TestableProcessor({
     async moveUsersToVoiceChannel() {
       const error = new Error('unexpected');
       throw error;
@@ -63,16 +52,8 @@ test('processor rethrows non-429 errors without pausing queue', async () => {
       targetChannelId: 'vc-1',
       userIds: ['u1'],
     },
-    queue: {
-      async pause() {
-        pauseCalls += 1;
-      },
-      async resume() {
-        return;
-      },
-    },
   };
 
   await assert.rejects(processor.process(job as never), /unexpected/);
-  assert.equal(pauseCalls, 0);
+  assert.equal(processor.rateLimitDelays.length, 0);
 });

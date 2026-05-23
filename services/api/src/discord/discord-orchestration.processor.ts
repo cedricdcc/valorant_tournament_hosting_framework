@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Inject } from '@nestjs/common';
-import type { Job } from 'bullmq';
+import { Worker, type Job } from 'bullmq';
 import {
   DISCORD_GATEWAY_CLIENT,
   DISCORD_MOVE_USERS_JOB,
@@ -42,12 +42,14 @@ export class DiscordOrchestrationProcessor extends WorkerHost {
         throw error;
       }
 
-      await job.queue.pause();
-      setTimeout(() => {
-        void job.queue.resume();
-      }, retryAfterMs);
+      await this.applyRateLimit(retryAfterMs);
+      throw Worker.RateLimitError();
+    }
+  }
 
-      throw new Error(`Discord rate limit hit (HTTP 429); retrying with backoff after ${retryAfterMs}ms`);
+  protected async applyRateLimit(retryAfterMs: number): Promise<void> {
+    if (this.worker) {
+      await this.worker.rateLimit(retryAfterMs);
     }
   }
 
@@ -58,9 +60,9 @@ export class DiscordOrchestrationProcessor extends WorkerHost {
     }
 
     const retryAfterHeader = error.response?.headers?.['retry-after'];
-    const parsedRetryAfter = retryAfterHeader ? Number.parseFloat(retryAfterHeader) : Number.NaN;
-    if (Number.isFinite(parsedRetryAfter) && parsedRetryAfter > 0) {
-      return Math.ceil(parsedRetryAfter * 1000);
+    const retryAfterSeconds = retryAfterHeader ? Number.parseFloat(retryAfterHeader) : Number.NaN;
+    if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+      return Math.ceil(retryAfterSeconds * 1000);
     }
 
     if (typeof error.retryAfterMs === 'number' && error.retryAfterMs > 0) {
