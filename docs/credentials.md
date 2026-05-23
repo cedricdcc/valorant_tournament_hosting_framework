@@ -11,6 +11,7 @@
 ## Discord Credentials
 
 - **DISCORD_BOT_TOKEN**
+- **DISCORD_USER_AGENT** (must be a valid `Product/Version` user-agent string for Discord API calls)
 - **DISCORD_CLIENT_ID**
 - **DISCORD_CLIENT_SECRET**
 - **DISCORD_REDIRECT_URI**
