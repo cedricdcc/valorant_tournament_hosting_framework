@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import type { StoreRegistry } from '@sapphire/pieces';
-import { registerPieceDirectories, TournamentBotClient } from '../src/bot-client.js';
+import { PermissionFlagsBits } from 'discord.js';
+import { REQUIRED_BOT_PERMISSION_FLAGS, registerPieceDirectories, TournamentBotClient } from '../src/bot-client.js';
 
 test('registerPieceDirectories maps commands, preconditions, and listeners from root path', () => {
   const registeredPaths: string[] = [];
@@ -36,4 +37,11 @@ test('TournamentBotClient applies constructor plugins', () => {
 
   assert.equal(pluginCalled, true);
   client.destroy();
+});
+
+test('REQUIRED_BOT_PERMISSION_FLAGS includes Manage Channels and Move Members', () => {
+  assert.equal(
+    REQUIRED_BOT_PERMISSION_FLAGS,
+    PermissionFlagsBits.ManageChannels | PermissionFlagsBits.MoveMembers,
+  );
 });

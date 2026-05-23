@@ -1,9 +1,11 @@
 import { SapphireClient, type SapphireClientOptions } from '@sapphire/framework';
 import { getRootData, type StoreRegistry } from '@sapphire/pieces';
-import { GatewayIntentBits } from 'discord.js';
+import { GatewayIntentBits, PermissionFlagsBits } from 'discord.js';
 import { join } from 'node:path';
 
 const DEFAULT_PIECE_DIRECTORIES = ['commands', 'preconditions', 'listeners'] as const;
+export const REQUIRED_BOT_PERMISSION_FLAGS =
+  PermissionFlagsBits.ManageChannels | PermissionFlagsBits.MoveMembers;
 
 export type BotPlugin = (client: TournamentBotClient) => void;
 

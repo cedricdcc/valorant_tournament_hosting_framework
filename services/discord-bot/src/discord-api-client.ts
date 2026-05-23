@@ -1,6 +1,23 @@
 const DEFAULT_DISCORD_USER_AGENT =
   'valorant_tournament_hosting_framework-discord-bot/0.1.0 (+https://github.com/cedricdcc/valorant_tournament_hosting_framework)';
 const DISCORD_API_BASE_URL = 'https://discord.com/api/v10';
+const GUILD_VOICE_CHANNEL_TYPE = 2;
+
+export interface CreateVoiceChannelRequest {
+  guildId: string;
+  name: string;
+  parentId?: string;
+}
+
+export interface CreatedVoiceChannel {
+  id: string;
+}
+
+export interface MoveGuildMemberRequest {
+  guildId: string;
+  userId: string;
+  channelId: string;
+}
 
 export function requireEnv(name: string, env: NodeJS.ProcessEnv = process.env): string {
   const value = env[name]?.trim();
@@ -38,6 +55,34 @@ export class DiscordApiClient {
     return this.fetchImpl(`${DISCORD_API_BASE_URL}${path}`, {
       ...init,
       headers,
+    });
+  }
+
+  public async createVoiceChannel(request: CreateVoiceChannelRequest): Promise<CreatedVoiceChannel> {
+    const response = await this.request(`/guilds/${request.guildId}/channels`, {
+      method: 'POST',
+      body: JSON.stringify({
+        name: request.name,
+        parent_id: request.parentId,
+        type: GUILD_VOICE_CHANNEL_TYPE,
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    return (await response.json()) as CreatedVoiceChannel;
+  }
+
+  public async moveGuildMemberToVoiceChannel(request: MoveGuildMemberRequest): Promise<void> {
+    await this.request(`/guilds/${request.guildId}/members/${request.userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ channel_id: request.channelId }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  public async deleteChannel(channelId: string): Promise<void> {
+    await this.request(`/channels/${channelId}`, {
+      method: 'DELETE',
     });
   }
 }
